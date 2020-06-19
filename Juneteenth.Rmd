@@ -1,0 +1,43 @@
+---
+title: "Juneteenth"
+output: html_document
+author: "Tyler Widdison"
+---
+
+```{r load-data}
+library(tidytuesdayR)
+library(tidyverse)
+tuesdata <- tt_load(2020, week = 25)
+blackpast <- tuesdata$blackpast
+slave_routes <- tuesdata$slave_routes
+african_names <- tuesdata$african_names
+census <- tuesdata$census
+```
+
+ # The more captains traveled, were more people were carried on their ship?
+```{r captain exploration}
+wanted_cpt <- slave_routes %>%
+    separate(captains_name, c('captain_1', 'captain_2', 'captain_3'),'<br/>') %>% 
+    reshape2::melt(id.vars = 1:7) %>% 
+    filter(!is.na(value), !is.na(n_slaves_arrived)) %>% 
+    select(voyage_id:n_slaves_arrived, value) %>% 
+    rename(cpt = value) %>% 
+    mutate(cpt = str_trim(cpt)) %>% 
+    group_by(cpt) %>% 
+    summarise(voyages = n(), slaves_brought = sum(n_slaves_arrived)) %>% 
+    filter(slaves_brought > 4000) %>% 
+    select(cpt) 
+
+slave_routes %>%
+    separate(captains_name, c('captain_1', 'captain_2', 'captain_3'),'<br/>') %>% 
+    reshape2::melt(id.vars = 1:7) %>% 
+    filter(!is.na(value), !is.na(n_slaves_arrived)) %>% 
+    select(voyage_id:n_slaves_arrived, value) %>% 
+    rename(cpt = value) %>% 
+    mutate(cpt = str_trim(cpt)) %>% 
+    filter(cpt %in% wanted_cpt$cpt, cpt != 'Williams, William', cpt != 'Smith, John') %>% 
+    group_by(cpt, year_arrival) %>% 
+    summarise(slaves_brought = sum(n_slaves_arrived)) %>%
+    ggplot(aes(year_arrival, cpt)) + 
+    geom_line(aes(size = slaves_brought, alpha = slaves_brought), color = '#D55E00') + theme_bw() 
+```
