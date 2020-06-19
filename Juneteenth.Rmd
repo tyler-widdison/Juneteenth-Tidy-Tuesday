@@ -8,10 +8,7 @@ author: "Tyler Widdison"
 library(tidytuesdayR)
 library(tidyverse)
 tuesdata <- tt_load(2020, week = 25)
-blackpast <- tuesdata$blackpast
 slave_routes <- tuesdata$slave_routes
-african_names <- tuesdata$african_names
-census <- tuesdata$census
 ```
 
  # The more captains traveled, were more people were carried on their ship?
